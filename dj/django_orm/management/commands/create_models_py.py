@@ -1,3 +1,4 @@
+#coding=utf-8
 from optparse import make_option
 import itertools
 import traceback
@@ -15,14 +16,26 @@ import pymongo
 import datetime
 import bson
 
+# {
+#     "String":"niyoufa",
+#     "Integer":10,
+#     "Boolean":false,
+#     "Double":10.0,
+#     "Date":new Date(),
+#     "ObjectId":ObjectId("578d8b2ae20286d3ebea738d"),
+#     "Null":null,
+#     "Object":{"name":"niyoufa"},
+#     "RegExp":RegExp("/[a-z]"),
+#     "Number":Number(10)
+# }
+
 class Command(BaseCommand):
 
     def handle(self, **options):
 
         client = pymongo.MongoClient("localhost", 27017)
-        db = client["dhuicredit"]
-        coll = db["checkcode"]
-        pdb.set_trace()
+        db = client["dhui100"]
+        coll = db["order"]
         table_name = coll.name
         obj = coll.find_one()
         columns = []
@@ -30,11 +43,17 @@ class Command(BaseCommand):
             columns.append((column,str(type(obj[column]))))
 
         type_mapping = {
-            str(str):'models.CharField(max_lenght=255)',
+            str(str):'models.CharField(max_length=255)',
             str(type(u"str")):'models.CharField(max_length=255)',
             str(datetime.datetime):'models.DateTimeField()',
             str(bool):'models.BooleanField(default=False)',
             str(bson.objectid.ObjectId):'models.CharField(max_length=255,db_index=True,unique=True)',
+            str(type(None)):'models.CharField(max_length=255)',
+            str(float):'models.FloatField()',
+            str(list): 'models.TextField()',
+            str(dict):'models.TextField()',
+            str(bson.regex.Regex):'models.TextField()',
+            str(int):'models.IntegerField()',
         }
 
         print "start create models.py"

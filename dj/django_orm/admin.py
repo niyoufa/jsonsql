@@ -1,3 +1,4 @@
 from django.contrib import admin
 
-# Register your models here.
+from django_orm.models import order
+admin.site.register(order)
