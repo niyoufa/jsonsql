@@ -16,10 +16,13 @@ import pymongo
 import datetime
 import bson
 
+from django_orm import fields
+
 # {
 #     "String":"niyoufa",
 #     "Integer":10,
 #     "Boolean":false,
+#     "Float":10.0,
 #     "Double":10.0,
 #     "Date":new Date(),
 #     "ObjectId":ObjectId("578d8b2ae20286d3ebea738d"),
@@ -28,43 +31,47 @@ import bson
 #     "RegExp":RegExp("/[a-z]"),
 #     "Number":Number(10)
 # }
+# {"String":"niyoufa","Integer":10,"Boolean":false,"Float":10.0,"Double":10.0,"Date":new Date(),"ObjectId":ObjectId("578d8b2ae20286d3ebea738d"),"Null":null,"Object":{"name":"niyoufa"},"RegExp":RegExp("/[a-z]"),"Number":Number(10)}
 
 class Command(BaseCommand):
 
     def handle(self, **options):
 
+        def models_py_import():
+            models_py_import_str = "#coding=utf-8\n"
+            models_py_import_str += "\n"
+            models_py_import_str += "from django.db import models\n"
+            models_py_import_str += "\n"
+            return models_py_import_str
+
+        def models_py_class(table_name):
+            models_py_class_str = "class %s(models.Model):\n"%table_name
+            return models_py_class_str
+
+        def write_models_py(class_str):
+            f = open(settings.BASE_DIR + "/django_orm/models.py","w")
+            f.write(class_str)
+            f.close()
+
         client = pymongo.MongoClient("localhost", 27017)
-        db = client["dhui100"]
+        db = client["code"]
         coll = db["order"]
         table_name = coll.name
         obj = coll.find_one()
         columns = []
         for column in obj.keys():
             columns.append((column,str(type(obj[column]))))
-
-        type_mapping = {
-            str(str):'models.CharField(max_length=255)',
-            str(type(u"str")):'models.CharField(max_length=255)',
-            str(datetime.datetime):'models.DateTimeField()',
-            str(bool):'models.BooleanField(default=False)',
-            str(bson.objectid.ObjectId):'models.CharField(max_length=255,db_index=True,unique=True)',
-            str(type(None)):'models.CharField(max_length=255)',
-            str(float):'models.FloatField()',
-            str(list): 'models.TextField()',
-            str(dict):'models.TextField()',
-            str(bson.regex.Regex):'models.TextField()',
-            str(int):'models.IntegerField()',
-        }
-
         print "start create models.py"
-
-        f = open(settings.BASE_DIR + "/django_orm/models.py","w")
-        f.write("#coding=utf-8\n")
-        f.write("from django.db import models\n")
-        f.write("class %s(models.Model):\n"%table_name)
+        models_py_import_str = models_py_import()
+        models_py_class_str = models_py_class(table_name)
+        column_list_str = ""
         for column in columns:
-            f.write('    %s=%s\n' % (column[0], type_mapping[column[1]]))
-        f.close()
+            column_name = column[0]
+            field_type = column[1]
+            column_list_str += fields.type_field_mapping[field_type](column_name,field_type).process()
+
+        class_str = models_py_import_str + models_py_class_str + column_list_str
+        write_models_py(class_str)
 
         db = "default"
         connection = connections[db]
