@@ -33,7 +33,7 @@ class Command(BaseCommand):
             str(str):'models.CharField(max_lenght=255)',
             str(type(u"str")):'models.CharField(max_length=255)',
             str(datetime.datetime):'models.DateTimeField()',
-            str(bool):'models.BooleanField(default=Fasle)',
+            str(bool):'models.BooleanField(default=False)',
             str(bson.objectid.ObjectId):'models.CharField(max_length=255,db_index=True,unique=True)',
         }
 
@@ -43,17 +43,15 @@ class Command(BaseCommand):
         f.write("#coding=utf-8\n")
         f.write("from django.db import models\n")
         f.write("class %s(models.Model):\n"%table_name)
-        f.write("    _id = models.CharField(max_length=255,db_index=True,unique=True)\n")
-        f.write("    blog_href = models.CharField(max_length=255)\n")
-        f.write("    blog_name = models.CharField(max_length=255)\n")
-
+        for column in columns:
+            f.write('    %s=%s\n' % (column[0], type_mapping[column[1]]))
         f.close()
 
         db = "default"
         connection = connections[db]
         cursor = connection.cursor()
         try :
-            cursor.execute("drop table django_orm_blog;")
+            cursor.execute("drop table django_orm_%s;"%table_name)
         except  Exception,e:
             print str(e)
             pass
