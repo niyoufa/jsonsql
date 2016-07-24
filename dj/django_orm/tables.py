@@ -28,13 +28,12 @@ class ModelClass(object):
                 if type(obj[column]) == dict or \
                 ( type(obj[column]) == list and len(obj[column][0])>0 and type(obj[column][0]) == dict ):
                     class_columns.append((column,str(type(obj[column]))))
-                else:
-                    columns.append((column,str(type(obj[column]))))
+                columns.append((column,str(type(obj[column]))))
             column_list_str = ""
             for column in columns:
                 column_name = column[0]
                 field_type = column[1]
-                column_list_str += fields.type_field_mapping[field_type](column_name,field_type).process()
+                column_list_str += fields.type_field_mapping[field_type](column_name,field_type).process(column_name)
 
             class_str_list = []
             for class_column in class_columns:
