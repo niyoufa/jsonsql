@@ -23,24 +23,31 @@ class ModelClass(object):
             obj = coll.find_one()
             columns = []
             class_columns = []
-
-            for column in obj.keys():
-                if type(obj[column]) == dict or \
-                ( type(obj[column]) == list and len(obj[column][0])>0 and type(obj[column][0]) == dict ):
-                    class_columns.append((column,str(type(obj[column]))))
-                columns.append((column,str(type(obj[column]))))
             column_list_str = ""
-            for column in columns:
-                column_name = column[0]
-                field_type = column[1]
-                column_list_str += fields.type_field_mapping[field_type](column_name,field_type).process(column_name)
-
             class_str_list = []
-            for class_column in class_columns:
-                column_name = class_column[0]
-                field_type = class_column[1]
-                class_str = self.prase_sub_class_str(column_name,field_type,obj[column_name])
-                class_str_list.append(class_str)
+            if obj:
+                for column in obj.keys():
+                    try :
+                        if (type(obj[column]) == dict and len(obj[column].keys()) > 0 ) or \
+                        ( type(obj[column]) == list and len(obj[column])>0 and len(obj[column][0])>0 and type(obj[column][0]) == dict ):
+                            class_columns.append((column,str(type(obj[column]))))
+                        else:
+                            columns.append((column,str(type(obj[column]))))
+                    except Exception,e:
+                        pdb.set_trace()
+                        pass
+
+                for column in columns:
+                    column_name = column[0]
+                    field_type = column[1]
+                    column_list_str += fields.type_field_mapping[field_type](column_name,field_type).process(column_name)
+
+                for class_column in class_columns:
+                    column_name = class_column[0]
+                    field_type = class_column[1]
+                    column_list_str += fields.relation_type_field_mapping[field_type](column_name,field_type).process(column_name)
+                    class_str = self.prase_sub_class_str(column_name,field_type,obj[column_name])
+                    class_str_list.append(class_str)
 
             return column_list_str , class_str_list
 

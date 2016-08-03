@@ -59,9 +59,9 @@ WSGI_APPLICATION = 'dj.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'jsonsql'  ,
+        'NAME': 'dhuicredit'  ,
         'USER': 'root',
-        'PASSWORD': 'nyf',
+        'PASSWORD': 'dhui123',
         'HOST': 'localhost',
         'PORT': '3306',
     }
@@ -85,3 +85,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+mongo = {
+    "host": "localhost",
+    "port": 27017,
+    "database": "dhuicredit",
+    "user": "dhuicredit",
+    "password": "DhuiCreditAdmin",
+}
+
+redis = {
+    "host": "localhost",
+    "port": 6379,
+    "db": 0
+}

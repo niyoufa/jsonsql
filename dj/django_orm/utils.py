@@ -1,5 +1,6 @@
 #coding=utf-8
 
+import pdb
 from django.conf import settings
 from django.core.management import call_command
 
@@ -22,12 +23,11 @@ def auto_rebuild_table(connections,table_names):
     db = "default"
     connection = connections[db]
     cursor = connection.cursor()
-    try :
-        for table_name in table_names:
-            cursor.execute("drop table django_orm_%s;"%table_name.lower())
-    except  Exception,e:
-        print str(e)
-        pass
-
+    for table_name in table_names:
+        try :
+                cursor.execute("drop table django_orm_%s;"%table_name.lower())
+        except  Exception,e:
+            print str(e)
+            continue
     call_command("validate")
     call_command("syncdb")

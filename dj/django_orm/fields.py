@@ -97,12 +97,11 @@ class ListField(BaseField):
     field_type =  str(list)
 
     def parse(self,*args,**kwargs):
-        table_name = args[0]
         if self.column_type !=  ListField.field_type:
             raise Exception("column type error : must be %s"%ListField.field_type)
         else:
-            field_type = "ManyToManyField"
-            field_desc = table_name
+            field_type = "TextField"
+            field_desc = ""
         return self.column_name, field_type, field_desc
 
 class DictField(BaseField):
@@ -110,12 +109,11 @@ class DictField(BaseField):
     field_type = str(dict)
 
     def parse(self,*args,**kwargs):
-        table_name = args[0]
         if self.column_type !=  DictField.field_type:
             raise Exception("column type error : must be %s"%DictField.field_type)
         else:
-            field_type = "ForeignKey"
-            field_desc = table_name
+            field_type = "TextField"
+            field_desc = ""
         return self.column_name, field_type, field_desc
 
 class ObjectIdField(BaseField):
@@ -167,3 +165,32 @@ type_field_mapping = {
             str(datetime.datetime):DateTimeField,
             str(bson.regex.Regex):RegexField,
         }
+
+class Many2ManyField(BaseField):
+    field_type = str(list)
+
+    def parse(self, *args, **kwargs):
+        table_name = args[0]
+        if self.column_type != ListField.field_type:
+            raise Exception("column type error : must be %s" % ListField.field_type)
+        else:
+            field_type = "ManyToManyField"
+            field_desc = table_name
+        return self.column_name, field_type, field_desc
+
+class ForeignKeyField(BaseField):
+    field_type = str(dict)
+
+    def parse(self, *args, **kwargs):
+        table_name = args[0]
+        if self.column_type != DictField.field_type:
+            raise Exception("column type error : must be %s" % DictField.field_type)
+        else:
+            field_type = "ForeignKey"
+            field_desc = table_name
+        return self.column_name, field_type, field_desc
+
+relation_type_field_mapping = {
+    str(list): Many2ManyField,
+    str(dict): ForeignKeyField,
+}

@@ -1,4 +1,4 @@
 from django.contrib import admin
 
-from django_orm.models import order
-admin.site.register(order)
+from django_orm.models import user
+admin.site.register(user)

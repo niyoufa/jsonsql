@@ -44,15 +44,18 @@ class Command(BaseCommand):
         models_py_import_str = utils.models_py_import()
 
         client = pymongo.MongoClient("localhost", 27017)
-        db = client["code"]
-
+        db = client["dhuicredit"]
+        collection_names = db.collection_names()
+        del_collection_names = ["log"]
+        collection_names = list( set(list(collection_names)) - set(list(del_collection_names)) )
         db_class_str_list = []
-
-        coll = db["order"]
-        table_name = coll.name
-        model_class_obj = tables.ModelClass(table_name,coll)
-        class_str_list = model_class_obj.parse()
-        db_class_str_list.extend(class_str_list)
+        for collection in collection_names:
+            coll = db[collection]
+            if coll.find_one():
+                table_name = coll.name
+                model_class_obj = tables.ModelClass(table_name,coll)
+                class_str_list = model_class_obj.parse()
+                db_class_str_list.extend(class_str_list)
 
         # write models.py
         utils.write_models_py(models_py_import_str,db_class_str_list)
